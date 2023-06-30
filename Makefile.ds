@@ -28,7 +28,7 @@ AR=/opt/devkitpro/devkitARM/bin/arm-none-eabi-ar rc
 RANLIB=/opt/devkitpro/devkitARM/bin/arm-none-eabi-ranlib
 
 ARCH = -mthumb -mthumb-interwork -march=armv5te -mtune=arm946e-s
-CFLAGS = $(ARCH) -O2 -Wall -Wwrite-strings -Wno-format -Wpointer-arith
+CFLAGS = $(ARCH) -O3 -ffast-math -Wall -Wwrite-strings -Wno-format -Wpointer-arith
 CPPFLAGS = -DARM9 -D__NDS__ -I$(DEVKITPRO)/libnds/include -Iinclude
 LDFLAGS = -specs=ds_arm9.specs -g $(ARCH) -L$(DEVKITPRO)/libnds/lib
 LIBS = -lmm9 -lnds9

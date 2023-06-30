@@ -1,0 +1,4 @@
+
+*.o
+*.nds
+include/SDL_config.h
