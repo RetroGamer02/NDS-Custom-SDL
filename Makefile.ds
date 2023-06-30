@@ -1,0 +1,77 @@
+#LibSDL 1.2.12
+#DS porting by Troy Davis(GPF)
+
+
+ifeq ($(strip $(DEVKITPRO)),)
+$(error "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>devkitPro)
+endif
+ifeq ($(strip $(DEVKITARM)),)
+DEVKITARM := $(DEVKITPRO)/devkitARM
+endif
+PORTLIBS := $(DEVKITPRO)/portlibs/nds
+
+
+SRCS = $(shell echo ./src/*.c ./src/audio/*.c ./src/cdrom/*.c ./src/cpuinfo/*.c ./src/events/*.c ./src/file/*.c ./src/stdlib/*.c ./src/thread/*.c ./src/timer/*.c ./src/video/*.c ./src/joystick/*.c ./src/joystick/nds/*.c ./src/cdrom/dummy/*.c ./src/thread/generic/*.c ./src/timer/nds/*.c ./src/loadso/dummy/*.c ./src/audio/maxmod/*.c ./src/video/dummy/*.c ./src/video/nds/*.c)
+OBJS = $(SRCS:.c=.o) 
+
+TESTSRCS = $(shell echo ./test/*.c)
+TESTOBJS = $(TESTSRCS:.c=.o)
+TESTELFS = $(TESTOBJS:.o=.elf)
+TESTNDS = $(TESTELFS:.elf=.nds)
+
+SUBDIRS=
+
+CC=/opt/devkitpro/devkitARM/bin/arm-none-eabi-gcc
+CXX=/opt/devkitpro/devkitARM/bin/arm-none-eabi-g++
+LDSHARED=$(CXX)
+AR=/opt/devkitpro/devkitARM/bin/arm-none-eabi-ar rc
+RANLIB=/opt/devkitpro/devkitARM/bin/arm-none-eabi-ranlib
+
+ARCH = -mthumb -mthumb-interwork -march=armv5te -mtune=arm946e-s
+CFLAGS = $(ARCH) -O2 -Wall -Wwrite-strings -Wno-format -Wpointer-arith
+CPPFLAGS = -DARM9 -D__NDS__ -I$(DEVKITPRO)/libnds/include -Iinclude
+LDFLAGS = -specs=ds_arm9.specs -g $(ARCH) -L$(DEVKITPRO)/libnds/lib
+LIBS = -lmm9 -lnds9
+
+CXXFLAGS += $(CFLAGS)
+
+all: libSDL.a $(TESTNDS)
+
+test/%.nds: test/%.elf
+	@/opt/devkitpro/tools/bin/ndstool -c $@ -9 $< -b $(DEVKITPRO)/libnds/icon.bmp "$(notdir $@);Simple DirectMedia Layer example;built with devkitARM"
+	@echo built ... $(notdir $@)
+
+test/%.elf: test/%.o libSDL.a
+	$(LDSHARED) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+libSDL.a: include/SDL_config.h $(OBJS)
+	$(AR) $@ $(OBJS)
+	$(RANLIB) $@
+
+include/SDL_config.h: include/SDL_config_nds.h
+	@echo "#include \"SDL_config_nds.h\"" > $@
+
+install: libSDL.a
+	@mkdir -p $(PORTLIBS)/include/SDL/
+	cp -r include/*.h $(PORTLIBS)/include/SDL/
+	cp -r libSDL.a $(PORTLIBS)/lib/libSDL.a
+
+clean: 
+	find . -name "*.o" |xargs rm -f
+	find . -name "*.d" |xargs rm -f
+	-rm -f include/SDL_config.h
+	-rm -f test/*.elf
+	-rm -f test/*.nds
+
+subdirs: $(patsubst %, _dir_%, $(SUBDIRS))
+
+$(patsubst %, _dir_%, $(SUBDIRS)):
+	$(MAKE) -C $(patsubst _dir_%, %, $@)
+
+clean_subdirs: $(patsubst %, _clean_dir_%, $(SUBDIRS))
+
+$(patsubst %, _clean_dir_%, $(SUBDIRS)):
+	$(MAKE) -C $(patsubst _clean_dir_%, %, $@) clean
+
+#include $(DEVKITARM)/ds_rules
+
