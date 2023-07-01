@@ -206,8 +206,9 @@ SDL_Surface *NDS_SetVideoMode(_THIS, SDL_Surface *current,
 	REG_BG2X = 0;
 	REG_BG2Y = 0;*/
 
-	REG_BG2PA = 1 * 320;
-	REG_BG2PD = 1 * 268;
+	REG_BG2PA = 320;
+	REG_BG2Y = 1000;
+	//REG_BG2PD = 268;
 
 	//this->hidden->frontBuffer = BG_BMP_RAM(0);
 	//this->hidden->frontBuffer = BG_BMP_RAM(0);
