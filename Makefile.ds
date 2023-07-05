@@ -27,7 +27,7 @@ LDSHARED=$(CXX)
 AR=/opt/devkitpro/devkitARM/bin/arm-none-eabi-ar rc
 RANLIB=/opt/devkitpro/devkitARM/bin/arm-none-eabi-ranlib
 
-ARCH = -march=armv5te -mtune=arm946e-s
+ARCH = -marm -march=armv5te -mtune=arm946e-s
 CFLAGS = $(ARCH) -Wall -O3 -mword-relocations -fomit-frame-pointer -ffast-math -Wwrite-strings -Wno-format -Wpointer-arith
 CPPFLAGS = -DARM9 -D__NDS__ -I$(DEVKITPRO)/libnds/include -Iinclude
 LDFLAGS = -specs=ds_arm9.specs -g $(ARCH) -L$(DEVKITPRO)/libnds/lib

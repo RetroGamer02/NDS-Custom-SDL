@@ -36,6 +36,8 @@
 
 #define NDSVID_DRIVER_NAME "nds"
 
+#define FRAMEBUFFER_SIZE (512 * 512)
+
 /* Initialization/Query functions */
 static int NDS_VideoInit(_THIS, SDL_PixelFormat *vformat);
 static SDL_Rect **NDS_ListModes(_THIS, SDL_PixelFormat *format, Uint32 flags);
@@ -179,41 +181,22 @@ SDL_Surface *NDS_SetVideoMode(_THIS, SDL_Surface *current,
 
 	int bg2;
 
-	if (bpp >= 8) {
-		bpp=16;
- 		Rmask = 0x0000001F;
-		Gmask = 0x000003E0;
-		Bmask = 0x00007C00;
-		Amask = 0x00008000;
+	bpp=16;
+	Rmask = 0x0000001F;
+	Gmask = 0x000003E0;
+	Bmask = 0x00007C00;
+	Amask = 0x00008000;
 
-		videoSetMode(MODE_5_2D | DISPLAY_BG2_ACTIVE);
+	videoSetMode(MODE_5_2D | DISPLAY_BG2_ACTIVE);
 
-		//REG_BG2CNT = BG_BMP16_512x512;
-		bg2 = bgInit(2, BgType_Bmp16, BgSize_B16_512x512, 0, 0);
-	} else {
-		bpp=8;
-
-		videoSetMode(MODE_6_2D | DISPLAY_BG2_ACTIVE);
-
-		//REG_BG2CNT = BG_BMP8_1024x512;
-		bg2 = bgInit(2, BgType_Bmp8, BgSize_B8_1024x512, 0, 0);
-	}
-
-	/*REG_BG2PA = ((width / 256) << 8) | (width % 256) ;
-	REG_BG2PB = 0;
-	REG_BG2PC = 0;
-	REG_BG2PD = ((height / 192) << 8) | ((height % 192) + (height % 192) / 3) ;
-	REG_BG2X = 0;
-	REG_BG2Y = 0;*/
+	bg2 = bgInit(2, BgType_Bmp16, BgSize_B16_512x512, 0, 0);
 
 	REG_BG2PA = 320;
 	REG_BG2Y = 1000;
 	//REG_BG2PD = 268;
 
-	//this->hidden->frontBuffer = BG_BMP_RAM(0);
-	//this->hidden->frontBuffer = BG_BMP_RAM(0);
 	this->hidden->frontBuffer = bgGetGfxPtr(bg2);
-	SDL_memset(this->hidden->frontBuffer, 0, 1024 * 512);
+	SDL_memset(this->hidden->frontBuffer, 0, FRAMEBUFFER_SIZE);
 
 	/* Allocate the new pixel format for the screen */
 	if (!SDL_ReallocFormat(current, bpp, Rmask, Gmask, Bmask, Amask)) {
@@ -222,14 +205,14 @@ SDL_Surface *NDS_SetVideoMode(_THIS, SDL_Surface *current,
 	}
 
 	/* Set up the new mode framebuffer */
-	current->flags = flags | SDL_FULLSCREEN | SDL_HWSURFACE | (bpp <= 8 ? SDL_DOUBLEBUF : 0);
+	current->flags = flags | SDL_FULLSCREEN | SDL_HWSURFACE;
 	this->hidden->w = current->w = width;
 	this->hidden->h = current->h = height;
 	current->pitch = 1024;
 
 	if (flags & SDL_DOUBLEBUF) { 
 		if (!this->hidden->backBuffer) {
-			this->hidden->backBuffer = SDL_malloc(1024 * 512);
+			this->hidden->backBuffer = SDL_malloc(FRAMEBUFFER_SIZE);
 		}
 		current->pixels = this->hidden->backBuffer;
 	} else {
@@ -275,7 +258,7 @@ static int NDS_FlipHWSurface(_THIS, SDL_Surface *surface)
 		while (REG_VCOUNT != 192);
 		while (REG_VCOUNT == 192);
 
-		dmaCopyAsynch(this->hidden->backBuffer, this->hidden->frontBuffer, 1024 * 512);
+		dmaCopyHalfWordsAsynch(2, this->hidden->backBuffer, this->hidden->frontBuffer, 1024 * 512);
 	}
 
 	return 0;
