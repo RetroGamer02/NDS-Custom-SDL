@@ -176,6 +176,8 @@ static int MaxMod_OpenAudio(_THIS, SDL_AudioSpec *spec)
 	sys.fifo_channel		= FIFO_MAXMOD;
 	mmInit( &sys );
 
+	mmSelectMode(MM_MODE_A); //Added
+
 	mm_stream mystream;
 	mystream.sampling_rate = spec->freq;
 	mystream.buffer_length = spec->size / get_sample_size(format);

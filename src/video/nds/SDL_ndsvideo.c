@@ -258,7 +258,8 @@ static int NDS_FlipHWSurface(_THIS, SDL_Surface *surface)
 		while (REG_VCOUNT != 192);
 		while (REG_VCOUNT == 192);
 
-		dmaCopyHalfWordsAsynch(3, this->hidden->backBuffer, this->hidden->frontBuffer, FRAMEBUFFER_SIZE);
+		//dmaCopyHalfWordsAsynch(3, this->hidden->backBuffer, this->hidden->frontBuffer, FRAMEBUFFER_SIZE);
+		memcpy(this->hidden->frontBuffer, this->hidden->backBuffer, FRAMEBUFFER_SIZE);
 	}
 
 	return 0;
