@@ -11,7 +11,7 @@ ARM_NONE_EABI_PATH	?= $(WONDERFUL_TOOLCHAIN)/toolchain/gcc-arm-none-eabi/bin/
 # Source code paths
 # -----------------
 
-SOURCEDIRS	:= ./src ./src/audio ./src/cdrom ./src/cpuinfo ./src/events ./src/file ./src/stdlib ./src/thread ./src/timer ./src/video ./src/joystick ./src/joystick/nds ./src/cdrom/dummy ./src/thread/generic ./src/timer/nds ./src/loadso/dummy ./src/audio/maxmod ./src/video/dummy ./src/video/nds
+SOURCEDIRS	:= ./src ./src/audio ./src/cdrom ./src/cpuinfo ./src/events ./src/file ./src/stdlib ./src/thread ./src/timer ./src/video ./src/joystick ./src/joystick/nds ./src/cdrom/dummy ./src/thread/nds ./src/timer/nds ./src/loadso/dummy ./src/audio/maxmod ./src/video/dummy ./src/video/nds
 INCLUDEDIRS	:= include
 GFXDIRS		:=
 BINDIRS		:=
@@ -90,11 +90,11 @@ ASFLAGS		+= -x assembler-with-cpp $(DEFINES) $(INCLUDEFLAGS) \
 		   -specs=$(SPECS)
 
 CFLAGS		+= -std=gnu17 $(WARNFLAGS) $(DEFINES) $(INCLUDEFLAGS) \
-		   $(ARCH) -Wall -O3 -mword-relocations -fomit-frame-pointer -ffast-math -Wwrite-strings -Wno-format -Wpointer-arith \
+		   $(ARCH) -Wall -O3 -fomit-frame-pointer -ffast-math -fmodulo-sched-allow-regmoves -fno-ira-share-save-slots -Wwrite-strings -Wno-format -Wpointer-arith \
 		   -specs=$(SPECS)
 
 CXXFLAGS	+= -std=gnu++17 $(WARNFLAGS) $(DEFINES) $(INCLUDEFLAGS) \
-		   $(ARCH) -Wall -O3 -mword-relocations -fomit-frame-pointer -ffast-math -Wwrite-strings -Wno-format -Wpointer-arith \
+		   $(ARCH) -Wall -O3 -fomit-frame-pointer -ffast-math -fmodulo-sched-allow-regmoves -fno-ira-share-save-slots -Wwrite-strings -Wno-format -Wpointer-arith \
 		   -fno-exceptions -fno-rtti \
 		   -specs=$(SPECS)
 

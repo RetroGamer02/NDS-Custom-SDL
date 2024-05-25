@@ -244,6 +244,7 @@
 #undef SDL_THREAD_SPROC
 #undef SDL_THREAD_WIN32
 #undef SDL_THREAD_N3DS
+#undef SDL_THREAD_NDS
 
 /* Enable various timer systems */
 #undef SDL_TIMER_BEOS
